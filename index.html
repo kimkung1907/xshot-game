@@ -1,1 +1,92 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>XSHOT MUMMY ARENA</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10151b;color:white;font-family:Arial;overflow:hidden;touch-action:none}
+#top{height:48px;background:#202a32;display:flex;align-items:center;justify-content:space-around;font-weight:bold}
+canvas{display:block;width:100vw;height:calc(100dvh - 48px);background:#34352d}
+#controls{position:fixed;bottom:20px;left:0;width:100%;display:flex;justify-content:space-between;align-items:end;padding:12px;pointer-events:none}
+#stick{width:125px;height:125px;border-radius:50%;background:#ffffff30;border:3px solid #ffffff70;position:relative;pointer-events:auto}
+#knob{width:48px;height:48px;border-radius:50%;background:#ddd9;position:absolute;left:35px;top:35px}
+#fire{width:85px;height:85px;border-radius:50%;background:#c32c25;border:3px solid white;color:white;font-size:18px;font-weight:bold;pointer-events:auto}
+#guns{position:fixed;bottom:155px;right:12px;display:flex;flex-direction:column;gap:6px}
+#guns button{background:#263e50;color:white;border:1px solid white;border-radius:8px;padding:8px}
+#start{position:fixed;inset:48px 0 0;background:#000c;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+#start button{padding:15px 35px;background:#e6a52d;border:0;border-radius:10px;font-size:22px;font-weight:bold}
+</style>
+</head>
+<body>
+<div id="top"><span>☠ MUMMY ARENA</span><span id="hp">❤️ 100</span><span id="score">คะแนน 0</span></div>
+<canvas id="game"></canvas>
+<div id="guns">
+<button onclick="weapon=0">M4</button>
+<button onclick="weapon=1">AK-47</button>
+<button onclick="weapon=2">SHOTGUN</button>
+<button onclick="weapon=3">SNIPER</button>
+</div>
+<div id="controls">
+<div id="stick"><div id="knob"></div></div>
+<button id="fire">ยิง!</button>
+</div>
+<div id="start"><h1>🔫 XSHOT<br>MUMMY ARENA</h1><p>เอาชีวิตรอดจากฝูงมัมมี่!</p><p>ลากวงกลมซ้ายเพื่อเดิน<br>แตะยิงด้านขวาเพื่อยิง</p><button onclick="begin()">เริ่มเกม</button></div>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+let W,H,player,enemies=[],bullets=[],score=0,hp=100,weapon=0,playing=false,last=0,spawn=0;
+function resize(){W=c.width=innerWidth*devicePixelRatio;H=c.height=(innerHeight-48)*devicePixelRatio}
+onresize=resize;resize();
+function begin(){player={x:W/2,y:H/2,r:15,speed:3.8};enemies=[];bullets=[];score=0;hp=100;playing=true;document.getElementById('start').style.display='none';last=performance.now();requestAnimationFrame(loop)}
+let dx=0,dy=0,shoot=false;
+const stick=document.getElementById('stick'),knob=document.getElementById('knob');
+function moveStick(e){let r=stick.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,len=Math.hypot(x,y),m=Math.min(42,len);dx=len?x/len*m/42:0;dy=len?y/len*m/42:0;knob.style.left=(35+dx*35)+'px';knob.style.top=(35+dy*35)+'px'}
+stick.onpointerdown=e=>{stick.setPointerCapture(e.pointerId);moveStick(e)};
+stick.onpointermove=e=>{if(e.buttons)moveStick(e)};
+stick.onpointerup=()=>{dx=dy=0;knob.style.left='35px';knob.style.top='35px'};
+document.getElementById('fire').onpointerdown=e=>{shoot=true;e.target.setPointerCapture(e.pointerId)};
+document.getElementById('fire').onpointerup=()=>shoot=false;
+let mx=W/2,my=H/2;
+c.onpointermove=e=>{let r=c.getBoundingClientRect();mx=(e.clientX-r.left)*devicePixelRatio;my=(e.clientY-r.top)*devicePixelRatio};
+c.onclick=()=>shoot=true;
+function loop(t){
+if(!playing)return;
+let dt=Math.min((t-last)/16,2);last=t;
+ctx.fillStyle='#48483b';ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='#77745a';ctx.lineWidth=4;
+for(let x=0;x<W;x+=65){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+for(let y=0;y<H;y+=65){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ctx.fillStyle='#655c43';
+for(let i=0;i<8;i++){let x=(i*173+50)%W,y=(i*239+80)%H;ctx.fillRect(x,y,35,35);ctx.fillStyle='#aaa';ctx.fillRect(x+7,y+7,21,21);ctx.fillStyle='#655c43'}
+player.x=Math.max(15,Math.min(W-15,player.x+dx*player.speed*dt*devicePixelRatio));
+player.y=Math.max(15,Math.min(H-15,player.y+dy*player.speed*dt*devicePixelRatio));
+spawn+=dt;if(spawn>65){spawn=0;let a=Math.random()*Math.PI*2;enemies.push({x:player.x+Math.cos(a)*Math.max(W,H)*.65,y:player.y+Math.sin(a)*Math.max(W,H)*.65,h:weapon===3?3:2})}
+if(shoot&&t-(window.lastShot||0)>[180,110,500,700][weapon]){
+window.lastShot=t;
+let target=enemies.reduce((a,b)=>!a||Math.hypot(b.x-player.x,b.y-player.y)<Math.hypot(a.x-player.x,a.y-player.y)?b:a,null);
+let angle=target?Math.atan2(target.y-player.y,target.x-player.x):Math.atan2(my-player.y,mx-player.x);
+let count=weapon===2?6:1;
+for(let i=0;i<count;i++)bullets.push({x:player.x,y:player.y,a:angle+(Math.random()-.5)*(weapon===2?.5:.035),s:weapon===3?19:weapon===2?10:13,d:weapon===3?3:1});
+}
+for(let b of bullets){b.x+=Math.cos(b.a)*b.s*dt*devicePixelRatio;b.y+=Math.sin(b.a)*b.s*dt*devicePixelRatio;ctx.fillStyle='#ffd34e';ctx.beginPath();ctx.arc(b.x,b.y,4*devicePixelRatio,0,7);ctx.fill()}
+bullets=bullets.filter(b=>b.x>0&&b.x<W&&b.y>0&&b.y<H);
+for(let e of enemies){
+let a=Math.atan2(player.y-e.y,player.x-e.x),s=1.15*devicePixelRatio*dt;e.x+=Math.cos(a)*s;e.y+=Math.sin(a)*s;
+ctx.fillStyle='#c5b58b';ctx.beginPath();ctx.arc(e.x,e.y,14*devicePixelRatio,0,7);ctx.fill();
+ctx.fillStyle='#211';ctx.fillRect(e.x-7,e.y-4,4,4);ctx.fillRect(e.x+4,e.y-4,4,4);
+if(Math.hypot(e.x-player.x,e.y-player.y)<27*devicePixelRatio){hp-=.12*dt}
+for(let b of bullets){if(Math.hypot(e.x-b.x,e.y-b.y)<18*devicePixelRatio){e.h-=b.d;b.x=-999;if(e.h<=0){e.dead=true;score+=10}}}
+}
+enemies=enemies.filter(e=>!e.dead);
+ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(player.x,player.y,15*devicePixelRatio,0,7);ctx.fill();
+ctx.fillStyle='#fff';ctx.fillRect(player.x-5*devicePixelRatio,player.y-5*devicePixelRatio,10*devicePixelRatio,10*devicePixelRatio);
+document.getElementById('hp').textContent='❤️ '+Math.max(0,Math.floor(hp));
+document.getElementById('score').textContent='คะแนน '+score;
+if(hp<=0){playing=false;document.getElementById('start').style.display='flex';document.querySelector('#start h1').textContent='GAME OVER';document.querySelector('#start p').textContent='คะแนนของคุณ '+score;document.querySelector('#start button').textContent='เล่นอีกครั้ง';return}
+requestAnimationFrame(loop)
+}
+</script>
+</body>
+</html>
