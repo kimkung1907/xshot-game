@@ -23,7 +23,11 @@
 .room em{font-style:normal;color:#79e7a6;font-size:11px}.room button{padding:8px 12px;font-size:12px;border-radius:9px}
 .primary{width:100%;margin-top:14px;padding:15px;border-radius:12px;background:linear-gradient(90deg,#0ba8dc,#2467db);box-shadow:0 8px 25px #0879b966}
 .lobby-side{display:flex;flex-direction:column;justify-content:space-between;min-height:450px;background:radial-gradient(circle at 50% 35%,#24648777,transparent 45%),#0b1727ef}
-.hero-art{flex:1;min-height:230px;display:flex;align-items:center;justify-content:center;position:relative}
+.hero-art{flex:1;min-height:270px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(ellipse at 50% 65%,#4b9dc944,transparent 58%)}
+#heroPreview{width:100%;height:270px;display:block;touch-action:pan-y}
+.hero-controls{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:8px;z-index:2}
+.hero-controls button{font-size:11px;padding:8px 11px;background:#12334ddd;border:1px solid #72ddff66;border-radius:9px}
+.hero-controls button:active{transform:scale(.97)}
 .hero-silhouette{width:118px;height:190px;position:relative;filter:drop-shadow(0 15px 20px #0009)}
 .hero-head{position:absolute;top:0;left:38px;width:43px;height:48px;border-radius:45% 45% 38% 38%;background:linear-gradient(120deg,#d8a77e,#8b5c45);border:4px solid #293c50}
 .hero-body{position:absolute;top:48px;left:20px;width:80px;height:88px;border-radius:18px 18px 8px 8px;background:linear-gradient(100deg,#1c354d,#55768a 55%,#172a3c);border:3px solid #91c7dc}
@@ -32,7 +36,7 @@
 .hero-gun:after{content:'';position:absolute;right:5px;top:10px;width:12px;height:24px;background:#29384a;transform:rotate(12deg)}
 .side-info{border-top:1px solid #ffffff20;padding-top:16px}.side-info b{font-size:17px}.side-info p{margin:6px 0;color:#a9c1d3;font-size:12px;line-height:1.5}
 #toast{position:fixed;z-index:20;left:50%;bottom:24px;transform:translateX(-50%);background:#07111dee;border:1px solid #6bdcff66;border-radius:12px;padding:10px 16px;color:#dff8ff;display:none;font-size:13px}
-@media(max-width:760px){#lobby{align-items:flex-start}.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:250px}.hero-art{min-height:180px}.mode-grid{gap:8px}.profile{font-size:11px}}
+@media(max-width:760px){#lobby{align-items:flex-start}.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:250px}.hero-art{min-height:220px}#heroPreview{height:220px}.mode-grid{gap:8px}.profile{font-size:11px}}
 
 /* Hybrid lobby polish */
 #lobby{background:radial-gradient(ellipse at 75% 35%,#147da855,transparent 38%),linear-gradient(125deg,#050b16f7,#0b1c31f5 55%,#071322f7)}
@@ -57,7 +61,7 @@
 .modal-card h2{margin:0 0 8px;color:#7de4ff}.modal-card p{color:#b3c8d8;font-size:13px;line-height:1.6}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .modal-actions button{font-size:13px;padding:10px 14px}.secondary{background:#20384e;border:1px solid #ffffff2b}
-@media(max-width:760px){.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:300px}.hero-art{min-height:190px}.lobby-nav{gap:5px}.lobby-nav button{flex:1;padding:9px 5px}}
+@media(max-width:760px){.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:300px}.hero-art{min-height:230px}#heroPreview{height:230px}.lobby-nav{gap:5px}.lobby-nav button{flex:1;padding:9px 5px}}
 </style></head>
 <body>
 <div id="hud"><div id="stats">❤️ HP <span id="hp">100</span><div id="hpbar"><div id="hpfill"></div></div>⭐ Kills: <span id="kills">0</span></div><div id="top"> <b>XSHOT 3D ARENA</b><br><small>TEAM BATTLE • BOT TRAINING</small></div><div id="cross">+</div><div id="message"></div><div id="ammo">🔫 <span id="bullets">30</span> / ∞</div></div>
@@ -74,16 +78,65 @@
  <div class="room"><div><b>Team Battle 02</b><br><span class="muted">แผนที่: Arena Base</span></div><div><em>● เปิดรับ</em><br><span class="muted">3/8 ผู้เล่น</span></div></div>
  </div>\n <div id="subPanel" style="display:none"><div class="room-head"><b id="subTitle">ตัวละครของฉัน</b><span class="muted" id="subTag">LOADOUT</span></div><div class="mode" style="cursor:default;margin:12px 0"><b id="subName">ASSAULT SOLDIER</b><p class="muted" id="subDesc">ชุดจู่โจมมาตรฐาน พร้อมเข้าสู่สนามรบ</p></div><div class="room"><span>สถานะอุปกรณ์</span><em>● พร้อมใช้งาน</em></div><button class="primary" id="backHome">กลับหน้าหลัก</button></div>
  <button class="primary" id="play">▶　เข้าห้องและเริ่มเล่น</button>
- <div class="lobby-footer"><span>BUILD 0.2.0 • BETA</span><span>🌐 ASIA SERVER　 <b style="color:#75e5a1">ONLINE</b></span><span>ยังไม่รองรับผู้เล่นออนไลน์จริง</span></div>
+ <div class="lobby-footer"><span>BUILD 0.3.0 • 3D CHARACTER</span><span>🌐 ASIA SERVER　 <b style="color:#75e5a1">ONLINE</b></span><span>ยังไม่รองรับผู้เล่นออนไลน์จริง</span></div>
  <div class="muted" style="text-align:center;margin-top:10px">เวอร์ชันทดลอง • เล่นคนเดียวกับบอท • ยังไม่รองรับผู้เล่นออนไลน์จริง</div>
 </div>
-<div class="lobby-side"><div><div class="room-head"><b>ตัวละครของฉัน</b><span class="muted">CHARACTER</span></div><div class="hero-art"><div class="hero-silhouette"><div class="hero-head"></div><div class="hero-body"></div><div class="hero-leg left"></div><div class="hero-leg right"></div><div class="hero-gun"></div></div></div></div><div class="side-info"><b>ASSAULT SOLDIER</b><p>หน่วยจู่โจม • อุปกรณ์มาตรฐาน<br>อาวุธหลัก: Assault Rifle　 |　 HP: 100</p><div class="muted">WASD / จอยมือถือ เพื่อเคลื่อนที่<br>เมาส์ / ลากหน้าจอ เพื่อเล็ง • ยิงเพื่อกำจัดบอท</div></div></div>
+<div class="lobby-side"><div><div class="room-head"><b>ตัวละครของฉัน</b><span class="muted">CHARACTER</span></div><div class="hero-art"><canvas id="heroPreview" aria-label="ตัวละครทหาร 3D"></canvas><div class="hero-controls"><button id="changeLook">🎽 เปลี่ยนชุด</button><button id="changeWeapon">🔫 เปลี่ยนปืน</button></div></div></div><div class="side-info"><b>ASSAULT SOLDIER</b><p>หน่วยจู่โจม • อุปกรณ์มาตรฐาน<br>อาวุธหลัก: Assault Rifle　 |　 HP: 100</p><div class="muted">WASD / จอยมือถือ เพื่อเคลื่อนที่<br>เมาส์ / ลากหน้าจอ เพื่อเล็ง • ยิงเพื่อกำจัดบอท</div></div></div>
 </div></div><div id="lobbyModal"><div class="modal-card"><h2 id="modalTitle">ยืนยันการเข้าห้อง</h2><p id="modalText">กำลังเตรียมสนามรบ</p><div class="modal-actions"><button class="secondary" id="modalClose">ยกเลิก</button><button id="modalConfirm">ตกลง</button></div></div></div><div id="toast"></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c9e8);scene.fog=new THREE.Fog(0x91c9e8,35,95);
 const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,150);camera.position.set(0,1.7,8);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(renderer.domElement);
+// 3D lobby character preview (separate transparent Three.js scene)
+const heroCanvas=document.querySelector('#heroPreview');
+const heroRenderer=new THREE.WebGLRenderer({canvas:heroCanvas,alpha:true,antialias:true});
+heroRenderer.setPixelRatio(Math.min(devicePixelRatio,2));heroRenderer.setClearColor(0x000000,0);
+const heroScene=new THREE.Scene();
+const heroCamera=new THREE.PerspectiveCamera(32,1,.1,30);heroCamera.position.set(0,1.55,6.2);heroCamera.lookAt(0,1.12,0);
+heroScene.add(new THREE.HemisphereLight(0xdff6ff,0x26364b,2.1));
+const heroKey=new THREE.DirectionalLight(0xffffff,2.3);heroKey.position.set(-3,5,4);heroScene.add(heroKey);
+const heroRim=new THREE.DirectionalLight(0x39cfff,1.5);heroRim.position.set(3,2,-3);heroScene.add(heroRim);
+const heroMat=(color,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness:.58,metalness});
+const soldier=new THREE.Group();heroScene.add(soldier);
+const uniformMat=heroMat(0x243c55),vestMat=heroMat(0x40566a,.18),darkMat=heroMat(0x172536,.15),skinMat=heroMat(0xc89572),visorMat=heroMat(0x101d2b,.35),trimMat=heroMat(0x82d9ef,.25);
+function heroMesh(geo,material,x,y,z,group=soldier){const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;}
+// boots and legs
+heroMesh(new THREE.BoxGeometry(.34,.2,.48),darkMat,-.2,.12,.03);heroMesh(new THREE.BoxGeometry(.34,.2,.48),darkMat,.2,.12,.03);
+const legGeo=new THREE.CapsuleGeometry(.145,.55,5,10);heroMesh(legGeo,uniformMat,-.2,.55,0);heroMesh(legGeo,uniformMat,.2,.55,0);
+// torso, tactical vest, belt and pouches
+heroMesh(new THREE.BoxGeometry(.76,.78,.42),uniformMat,0,1.34,0);
+heroMesh(new THREE.BoxGeometry(.78,.57,.46),vestMat,0,1.38,.045);
+heroMesh(new THREE.BoxGeometry(.8,.12,.47),darkMat,0,1.02,.02);
+for(const x of [-.25,.25]){heroMesh(new THREE.BoxGeometry(.16,.22,.12),darkMat,x,1.27,.29);heroMesh(new THREE.SphereGeometry(.17,12,10),vestMat,x*2,1.69,0);}
+heroMesh(new THREE.CylinderGeometry(.12,.13,.18,12),skinMat,0,1.82,0);
+// head, helmet, visor and headset
+heroMesh(new THREE.SphereGeometry(.235,18,14),skinMat,0,2.05,.015);
+heroMesh(new THREE.SphereGeometry(.265,18,12,0,Math.PI*2,0,Math.PI*.58),darkMat,0,2.14,0);
+heroMesh(new THREE.BoxGeometry(.34,.085,.035),visorMat,0,2.08,.218);
+heroMesh(new THREE.BoxGeometry(.08,.12,.1),trimMat,-.255,2.04,0);heroMesh(new THREE.BoxGeometry(.08,.12,.1),trimMat,.255,2.04,0);
+// arms and gloves
+const armGeo=new THREE.CapsuleGeometry(.12,.48,5,10);const leftArm=heroMesh(armGeo,uniformMat,-.48,1.42,.04);leftArm.rotation.z=-.28;
+const rightArm=heroMesh(armGeo,uniformMat,.48,1.42,.12);rightArm.rotation.z=.55;
+heroMesh(new THREE.SphereGeometry(.13,12,10),darkMat,-.53,1.13,.15);heroMesh(new THREE.SphereGeometry(.13,12,10),darkMat,.58,1.22,.28);
+// rifle held across the chest
+const heroGun=new THREE.Group();soldier.add(heroGun);
+const gunMetal=heroMat(0x202a35,.5),gunAccent=heroMat(0x5d7182,.35);
+heroMesh(new THREE.BoxGeometry(.18,.16,.72),gunMetal,.35,1.32,.43,heroGun);
+const heroBarrel=heroMesh(new THREE.CylinderGeometry(.035,.035,.52,10),gunMetal,.35,1.34,.98,heroGun);heroBarrel.rotation.x=Math.PI/2;
+heroMesh(new THREE.BoxGeometry(.12,.24,.15),darkMat,.35,1.16,.48,heroGun);
+heroMesh(new THREE.BoxGeometry(.2,.08,.2),gunAccent,.35,1.44,.32,heroGun);
+// display plinth
+const plinthMat=heroMat(0x15344a,.35);const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.9,1.05,.12,40),plinthMat);plinth.position.y=-.08;heroScene.add(plinth);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(.88,.018,8,64),heroMat(0x49d9ff,.45));ring.rotation.x=Math.PI/2;ring.position.y=0;heroScene.add(ring);
+function resizeHero(){const r=heroCanvas.getBoundingClientRect();if(!r.width||!r.height)return;heroRenderer.setSize(r.width,r.height,false);heroCamera.aspect=r.width/r.height;heroCamera.updateProjectionMatrix();}
+resizeHero();
+const uniformSets=[{body:0x243c55,vest:0x40566a,trim:0x82d9ef,name:'ASSAULT SOLDIER'},{body:0x344b35,vest:0x596b42,trim:0xc4d58a,name:'JUNGLE RAIDER'},{body:0x343746,vest:0x55586c,trim:0xffc46b,name:'URBAN STRIKER'}];let uniformIndex=0,weaponIndex=0;
+function cycleUniform(){uniformIndex=(uniformIndex+1)%uniformSets.length;const set=uniformSets[uniformIndex];uniformMat.color.setHex(set.body);vestMat.color.setHex(set.vest);trimMat.color.setHex(set.trim);document.querySelector('.side-info b').textContent=set.name;document.querySelector('#toast').textContent='เปลี่ยนชุดเป็น '+set.name;document.querySelector('#toast').style.display='block';setTimeout(()=>document.querySelector('#toast').style.display='none',1300);}
+const weaponSets=[{color:0x202a35,accent:0x5d7182,name:'ASSAULT RIFLE'},{color:0x263b30,accent:0x9aa66c,name:'TACTICAL CARBINE'},{color:0x34313c,accent:0xc28c45,name:'HEAVY RIFLE'}];
+function cycleWeapon(){weaponIndex=(weaponIndex+1)%weaponSets.length;gunMetal.color.setHex(weaponSets[weaponIndex].color);gunAccent.color.setHex(weaponSets[weaponIndex].accent);const info=document.querySelector('.side-info p');info.innerHTML='หน่วยจู่โจม • อุปกรณ์มาตรฐาน<br>อาวุธหลัก: '+weaponSets[weaponIndex].name+'　 |　 HP: 100';document.querySelector('#toast').textContent='เลือก '+weaponSets[weaponIndex].name;document.querySelector('#toast').style.display='block';setTimeout(()=>document.querySelector('#toast').style.display='none',1300);}
+document.querySelector('#changeLook').addEventListener('click',cycleUniform);document.querySelector('#changeWeapon').addEventListener('click',cycleWeapon);
+
 scene.add(new THREE.HemisphereLight(0xffffff,0x536078,2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-12,22,10);sun.castShadow=true;scene.add(sun);
 const mat=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:.82});
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),mat(0x657d65));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
@@ -110,8 +163,8 @@ function jump(){if(onGround&&alive){velY=6.5;onGround=false}}
 const stick=document.querySelector('#stick'),nub=document.querySelector('#nub');let stickId=null;stick.addEventListener('pointerdown',e=>{stickId=e.pointerId;stick.setPointerCapture(stickId);stickMove(e)});stick.addEventListener('pointermove',e=>{if(e.pointerId===stickId)stickMove(e)});function stickMove(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const l=Math.hypot(dx,dy),max=42;if(l>max){dx=dx/l*max;dy=dy/l*max}moveX=dx/max;moveY=dy/max;nub.style.transform=`translate(${dx}px,${dy}px)`}function resetStick(){stickId=null;moveX=moveY=0;nub.style.transform=''}stick.addEventListener('pointerup',resetStick);stick.addEventListener('pointercancel',resetStick);document.querySelector('#fire').addEventListener('pointerdown',e=>{e.preventDefault();shooting=true;shoot()});document.querySelector('#fire').addEventListener('pointerup',()=>shooting=false);document.querySelector('#fire').addEventListener('pointercancel',()=>shooting=false);document.querySelector('#jump').addEventListener('pointerdown',jump);
 const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);if(alive){let f=(keys.KeyW?1:0)-(keys.KeyS?1:0)-moveY;let s=(keys.KeyD?1:0)-(keys.KeyA?1:0)+moveX;const len=Math.hypot(f,s);if(len>1){f/=len;s/=len}const speed=7;camera.position.x+= (Math.sin(yaw)*f+Math.cos(yaw)*s)*speed*dt;camera.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*speed*dt;camera.position.x=Math.max(-22,Math.min(22,camera.position.x));camera.position.z=Math.max(-21,Math.min(21,camera.position.z));velY-=17*dt;camera.position.y+=velY*dt;if(camera.position.y<=1.7){camera.position.y=1.7;velY=0;onGround=true}if(shooting)shoot();
 for(const b of bots){const dx=camera.position.x-b.g.position.x,dz=camera.position.z-b.g.position.z,d=Math.hypot(dx,dz);b.phase+=dt;if(d>2.2){b.g.position.x+=dx/d*dt*1.25;b.g.position.z+=dz/d*dt*1.25;b.g.rotation.y=Math.atan2(dx,dz)}else{b.attack+=dt;if(b.attack>1.1){damage(7);b.attack=0}}b.g.position.x=Math.max(-22,Math.min(22,b.g.position.x));b.g.position.z=Math.max(-21,Math.min(21,b.g.position.z));}}
-renderer.render(scene,camera)}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+renderer.render(scene,camera);soldier.rotation.y=Math.sin(performance.now()*.00055)*.16;heroGun.rotation.y=Math.sin(performance.now()*.0008)*.025;heroRenderer.render(heroScene,heroCamera)}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);resizeHero()});
 let chosenMode='tdm',pendingStart=false;
 const modal=document.querySelector('#lobbyModal');
 function showLobbyModal(title,body){document.querySelector('#modalTitle').textContent=title;document.querySelector('#modalText').textContent=body;pendingStart=true;modal.style.display='flex'}
