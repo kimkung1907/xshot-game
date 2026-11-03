@@ -1,92 +1,41 @@
-
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>XSHOT MUMMY ARENA</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#10151b;color:white;font-family:Arial;overflow:hidden;touch-action:none}
-#top{height:48px;background:#202a32;display:flex;align-items:center;justify-content:space-around;font-weight:bold}
-canvas{display:block;width:100vw;height:calc(100dvh - 48px);background:#34352d}
-#controls{position:fixed;bottom:20px;left:0;width:100%;display:flex;justify-content:space-between;align-items:end;padding:12px;pointer-events:none}
-#stick{width:125px;height:125px;border-radius:50%;background:#ffffff30;border:3px solid #ffffff70;position:relative;pointer-events:auto}
-#knob{width:48px;height:48px;border-radius:50%;background:#ddd9;position:absolute;left:35px;top:35px}
-#fire{width:85px;height:85px;border-radius:50%;background:#c32c25;border:3px solid white;color:white;font-size:18px;font-weight:bold;pointer-events:auto}
-#guns{position:fixed;bottom:155px;right:12px;display:flex;flex-direction:column;gap:6px}
-#guns button{background:#263e50;color:white;border:1px solid white;border-radius:8px;padding:8px}
-#start{position:fixed;inset:48px 0 0;background:#000c;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
-#start button{padding:15px 35px;background:#e6a52d;border:0;border-radius:10px;font-size:22px;font-weight:bold}
-</style>
-</head>
-<body>
-<div id="top"><span>☠ MUMMY ARENA</span><span id="hp">❤️ 100</span><span id="score">คะแนน 0</span></div>
-<canvas id="game"></canvas>
-<div id="guns">
-<button onclick="weapon=0">M4</button>
-<button onclick="weapon=1">AK-47</button>
-<button onclick="weapon=2">SHOTGUN</button>
-<button onclick="weapon=3">SNIPER</button>
-</div>
-<div id="controls">
-<div id="stick"><div id="knob"></div></div>
-<button id="fire">ยิง!</button>
-</div>
-<div id="start"><h1>🔫 XSHOT<br>MUMMY ARENA</h1><p>เอาชีวิตรอดจากฝูงมัมมี่!</p><p>ลากวงกลมซ้ายเพื่อเดิน<br>แตะยิงด้านขวาเพื่อยิง</p><button onclick="begin()">เริ่มเกม</button></div>
-<script>
-const c=document.getElementById('game'),ctx=c.getContext('2d');
-let W,H,player,enemies=[],bullets=[],score=0,hp=100,weapon=0,playing=false,last=0,spawn=0;
-function resize(){W=c.width=innerWidth*devicePixelRatio;H=c.height=(innerHeight-48)*devicePixelRatio}
-onresize=resize;resize();
-function begin(){player={x:W/2,y:H/2,r:15,speed:3.8};enemies=[];bullets=[];score=0;hp=100;playing=true;document.getElementById('start').style.display='none';last=performance.now();requestAnimationFrame(loop)}
-let dx=0,dy=0,shoot=false;
-const stick=document.getElementById('stick'),knob=document.getElementById('knob');
-function moveStick(e){let r=stick.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,len=Math.hypot(x,y),m=Math.min(42,len);dx=len?x/len*m/42:0;dy=len?y/len*m/42:0;knob.style.left=(35+dx*35)+'px';knob.style.top=(35+dy*35)+'px'}
-stick.onpointerdown=e=>{stick.setPointerCapture(e.pointerId);moveStick(e)};
-stick.onpointermove=e=>{if(e.buttons)moveStick(e)};
-stick.onpointerup=()=>{dx=dy=0;knob.style.left='35px';knob.style.top='35px'};
-document.getElementById('fire').onpointerdown=e=>{shoot=true;e.target.setPointerCapture(e.pointerId)};
-document.getElementById('fire').onpointerup=()=>shoot=false;
-let mx=W/2,my=H/2;
-c.onpointermove=e=>{let r=c.getBoundingClientRect();mx=(e.clientX-r.left)*devicePixelRatio;my=(e.clientY-r.top)*devicePixelRatio};
-c.onclick=()=>shoot=true;
-function loop(t){
-if(!playing)return;
-let dt=Math.min((t-last)/16,2);last=t;
-ctx.fillStyle='#48483b';ctx.fillRect(0,0,W,H);
-ctx.strokeStyle='#77745a';ctx.lineWidth=4;
-for(let x=0;x<W;x+=65){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
-for(let y=0;y<H;y+=65){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-ctx.fillStyle='#655c43';
-for(let i=0;i<8;i++){let x=(i*173+50)%W,y=(i*239+80)%H;ctx.fillRect(x,y,35,35);ctx.fillStyle='#aaa';ctx.fillRect(x+7,y+7,21,21);ctx.fillStyle='#655c43'}
-player.x=Math.max(15,Math.min(W-15,player.x+dx*player.speed*dt*devicePixelRatio));
-player.y=Math.max(15,Math.min(H-15,player.y+dy*player.speed*dt*devicePixelRatio));
-spawn+=dt;if(spawn>65){spawn=0;let a=Math.random()*Math.PI*2;enemies.push({x:player.x+Math.cos(a)*Math.max(W,H)*.65,y:player.y+Math.sin(a)*Math.max(W,H)*.65,h:weapon===3?3:2})}
-if(shoot&&t-(window.lastShot||0)>[180,110,500,700][weapon]){
-window.lastShot=t;
-let target=enemies.reduce((a,b)=>!a||Math.hypot(b.x-player.x,b.y-player.y)<Math.hypot(a.x-player.x,a.y-player.y)?b:a,null);
-let angle=target?Math.atan2(target.y-player.y,target.x-player.x):Math.atan2(my-player.y,mx-player.x);
-let count=weapon===2?6:1;
-for(let i=0;i<count;i++)bullets.push({x:player.x,y:player.y,a:angle+(Math.random()-.5)*(weapon===2?.5:.035),s:weapon===3?19:weapon===2?10:13,d:weapon===3?3:1});
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>XSHOT 3D Arena</title><style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10151b;color:#fff;font-family:Arial,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}#hud{position:fixed;inset:0;pointer-events:none;text-shadow:0 2px 3px #000}#top{position:absolute;top:8px;left:0;right:0;display:flex;justify-content:space-around;font-weight:bold;font-size:14px}#hint{position:absolute;top:38px;width:100%;text-align:center;font-size:12px;color:#ddd}#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:25px;color:#fff}#bottom{position:absolute;bottom:12px;left:12px;font-size:13px}#guns{position:absolute;right:10px;bottom:115px;display:flex;flex-direction:column;gap:5px;pointer-events:auto}button{border:1px solid #ffffff80;background:#182b3be8;color:white;border-radius:9px;padding:9px 11px;font-weight:bold}#controls{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-between;align-items:end;padding:0 12px;pointer-events:none}#stick{width:120px;height:120px;border-radius:50%;background:#ffffff25;border:2px solid #ffffff70;position:relative;pointer-events:auto}#knob{position:absolute;width:46px;height:46px;left:35px;top:35px;border-radius:50%;background:#ddd9}#actions{display:flex;gap:9px;align-items:end;pointer-events:auto}#fire{width:76px;height:76px;border-radius:50%;background:#b52c25;font-size:17px}#jump{height:52px}#menu{position:fixed;inset:0;background:linear-gradient(#07111be8,#111923f5);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}#panel{width:min(440px,100%);background:#182633;border:1px solid #64798a;border-radius:18px;padding:22px;box-shadow:0 12px 40px #0009}h1{margin:0 0 8px;font-size:28px}p{color:#cbd5df;font-size:14px;line-height:1.5}.mode{display:block;width:100%;margin:10px 0;padding:14px;font-size:17px;background:#24527a}#start{background:#d18b20;color:#111;width:100%;padding:14px;font-size:18px;margin-top:8px}#notice{font-size:11px;color:#aebdca;margin-top:12px}
+</style></head><body>
+<div id="hud"><div id="top"><span id="modeLabel">XSHOT 3D</span><span id="health">❤️ 100</span><span id="score">คะแนน 0</span><span id="ammo">M4 ∞</span></div><div id="hint">ลากจอด้านขวาเพื่อหมุนกล้อง • จอยซ้ายเพื่อเดิน</div><div id="cross">+</div><div id="bottom">WAVE 1</div><div id="guns"><button onclick="chooseGun(0)">M4</button><button onclick="chooseGun(1)">AK-47</button><button onclick="chooseGun(2)">SHOTGUN</button><button onclick="chooseGun(3)">SNIPER</button></div><div id="controls"><div id="stick"><div id="knob"></div></div><div id="actions"><button id="jump">กระโดด</button><button id="fire">ยิง</button></div></div></div>
+<div id="menu"><div id="panel"><h1>⚔ XSHOT 3D ARENA</h1><p>เกมยิงมุมมองบุคคลที่หนึ่ง เล่นบนมือถือ</p><button class="mode" onclick="setMode('team')">🔴🔵 TEAM BATTLE</button><button class="mode" onclick="setMode('mummy')">🧟 MUMMY SURVIVAL</button><button id="start" onclick="startGame()">เริ่มเกม</button><div id="notice">เวอร์ชันทดลองเล่นกับบอท • ไม่ใช่เกมออนไลน์หลายคน</div></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8798a4);scene.fog=new THREE.Fog(0x8798a4,24,85);
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,120);camera.position.set(0,1.7,7);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xddeeff,0x514333,2));const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(8,15,7);scene.add(sun);
+const mat=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:1});const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),mat(0x77715c));floor.rotation.x=-Math.PI/2;scene.add(floor);
+const wallMat=mat(0x777b79), crateMat=mat(0x69513a);
+function box(x,y,z,sx,sy,sz,m){let o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);scene.add(o);return o}
+// compact arena walls and cover
+box(0,2,-22,44,4,1,wallMat);box(0,2,22,44,4,1,wallMat);box(-22,2,0,1,4,44,wallMat);box(22,2,0,1,4,44,wallMat);
+for(let i=0;i<13;i++){let x=(i%5-2)*7,z=(Math.floor(i/5)-1)*9;box(x,.9,z,2.6,1.8,2.6,crateMat)}
+// decorative columns
+for(let x of [-17,17])for(let z of [-17,17]){box(x,2,z,2,4,2,mat(0x777064));}
+const gunGroup=new THREE.Group();camera.add(gunGroup);scene.add(camera);let gunMesh;
+function buildGun(){if(gunMesh)gunGroup.remove(gunMesh);let g=new THREE.Group();let body=new THREE.Mesh(new THREE.BoxGeometry(.18,.16,.65),mat(0x20262c));body.position.set(.28,-.23,-.55);g.add(body);let barrel=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.48,8),mat(0x111519));barrel.rotation.x=Math.PI/2;barrel.position.set(.28,-.19,-1.03);g.add(barrel);let grip=new THREE.Mesh(new THREE.BoxGeometry(.09,.22,.12),mat(0x4b3928));grip.position.set(.28,-.38,-.43);g.add(grip);gunGroup.add(g);gunMesh=g}buildGun();
+let mode='team',playing=false,hp=100,score=0,wave=1,gun=0,ammo=[999,999,999,999],bots=[],shots=[],yaw=0,pitch=0,moveX=0,moveY=0,fireHeld=false,lastShot=0,spawnTimer=0,keys={};
+const gunNames=['M4','AK-47','SHOTGUN','SNIPER'],rates=[150,105,550,750],damage=[1,1,1,4];
+window.chooseGun=(n)=>{gun=n;document.getElementById('ammo').textContent=gunNames[gun]+' ∞';};window.setMode=(m)=>{mode=m;document.getElementById('modeLabel').textContent=m==='team'?'TEAM BATTLE':'MUMMY SURVIVAL';document.querySelectorAll('.mode').forEach(b=>b.style.outline='');event?.currentTarget?.style?.setProperty('outline','2px solid #ffc');};
+function makeBot(){let mummy=mode==='mummy';let group=new THREE.Group();let skin=mat(mummy?0xc5b38c:(Math.random()>.5?0x9b3434:0x315c9b));let torso=new THREE.Mesh(new THREE.BoxGeometry(.65,.9,.35),skin);torso.position.y=1.05;group.add(torso);let head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,8),mat(mummy?0xd8c99e:0xc99a79));head.position.y=1.72;group.add(head);let legmat=mat(0x34383c);for(let x of [-.19,.19]){let leg=new THREE.Mesh(new THREE.BoxGeometry(.2,.65,.22),legmat);leg.position.set(x,.35,0);group.add(leg)}let a=Math.random()*Math.PI*2,r=15+Math.random()*5;group.position.set(Math.cos(a)*r,0,Math.sin(a)*r);scene.add(group);bots.push({group,hp:mummy?3:2,speed:mummy?1.5:1.15,attack:0});}
+function startGame(){document.getElementById('menu').style.display='none';hp=100;score=0;wave=1;playing=true;camera.position.set(0,1.7,7);yaw=0;pitch=0;for(let b of bots)scene.remove(b.group);bots=[];for(let i=0;i<5;i++)makeBot();}
+window.startGame=startGame;
+function shoot(){let now=performance.now();if(now-lastShot<rates[gun])return;lastShot=now;let count=gun===2?7:1;for(let i=0;i<count;i++){let dir=new THREE.Vector3(0,0,-1);dir.applyEuler(camera.rotation);dir.x+=(Math.random()-.5)*(gun===2?.18:.012);dir.y+=(Math.random()-.5)*(gun===2?.18:.012);dir.normalize();let ray=new THREE.Raycaster(camera.position,dir,0,55);let targets=bots.map(b=>b.group.children[0]);let hits=ray.intersectObjects(targets,false);if(hits.length){let bot=bots.find(b=>b.group===hits[0].object.parent);if(bot){bot.hp-=damage[gun];if(bot.hp<=0){scene.remove(bot.group);bots=bots.filter(x=>x!==bot);score+=10;}}}}
 }
-for(let b of bullets){b.x+=Math.cos(b.a)*b.s*dt*devicePixelRatio;b.y+=Math.sin(b.a)*b.s*dt*devicePixelRatio;ctx.fillStyle='#ffd34e';ctx.beginPath();ctx.arc(b.x,b.y,4*devicePixelRatio,0,7);ctx.fill()}
-bullets=bullets.filter(b=>b.x>0&&b.x<W&&b.y>0&&b.y<H);
-for(let e of enemies){
-let a=Math.atan2(player.y-e.y,player.x-e.x),s=1.15*devicePixelRatio*dt;e.x+=Math.cos(a)*s;e.y+=Math.sin(a)*s;
-ctx.fillStyle='#c5b58b';ctx.beginPath();ctx.arc(e.x,e.y,14*devicePixelRatio,0,7);ctx.fill();
-ctx.fillStyle='#211';ctx.fillRect(e.x-7,e.y-4,4,4);ctx.fillRect(e.x+4,e.y-4,4,4);
-if(Math.hypot(e.x-player.x,e.y-player.y)<27*devicePixelRatio){hp-=.12*dt}
-for(let b of bullets){if(Math.hypot(e.x-b.x,e.y-b.y)<18*devicePixelRatio){e.h-=b.d;b.x=-999;if(e.h<=0){e.dead=true;score+=10}}}
-}
-enemies=enemies.filter(e=>!e.dead);
-ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(player.x,player.y,15*devicePixelRatio,0,7);ctx.fill();
-ctx.fillStyle='#fff';ctx.fillRect(player.x-5*devicePixelRatio,player.y-5*devicePixelRatio,10*devicePixelRatio,10*devicePixelRatio);
-document.getElementById('hp').textContent='❤️ '+Math.max(0,Math.floor(hp));
-document.getElementById('score').textContent='คะแนน '+score;
-if(hp<=0){playing=false;document.getElementById('start').style.display='flex';document.querySelector('#start h1').textContent='GAME OVER';document.querySelector('#start p').textContent='คะแนนของคุณ '+score;document.querySelector('#start button').textContent='เล่นอีกครั้ง';return}
-requestAnimationFrame(loop)
-}
-</script>
-</body>
-</html>
+document.getElementById('fire').addEventListener('pointerdown',e=>{e.preventDefault();fireHeld=true;shoot()});for(let ev of ['pointerup','pointercancel','pointerleave'])document.getElementById('fire').addEventListener(ev,()=>fireHeld=false);
+document.getElementById('jump').onclick=()=>{camera.position.y=2.5;setTimeout(()=>{if(playing)camera.position.y=1.7},350)};
+const stick=document.getElementById('stick'),knob=document.getElementById('knob');function stickMove(e){let r=stick.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=Math.hypot(x,y),k=Math.min(42,l);moveX=l?x/l*k/42:0;moveY=l?y/l*k/42:0;knob.style.left=35+moveX*35+'px';knob.style.top=35+moveY*35+'px'}stick.onpointerdown=e=>{stick.setPointerCapture(e.pointerId);stickMove(e)};stick.onpointermove=e=>{if(e.buttons)stickMove(e)};stick.onpointerup=()=>{moveX=moveY=0;knob.style.left='35px';knob.style.top='35px'};
+let lookId=null,lastX=0,lastY=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.clientX<innerWidth*.38)return;lookId=e.pointerId;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(lookId!==e.pointerId)return;let dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw-=dx*.004;pitch=Math.max(-1.2,Math.min(1.2,pitch-dy*.004));camera.rotation.set(pitch,yaw,0,'YXZ')});renderer.domElement.addEventListener('pointerup',()=>lookId=null);
+addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let prev=performance.now();function animate(t){requestAnimationFrame(animate);let dt=Math.min((t-prev)/1000,.04);prev=t;if(playing){let forward=-(moveY||((keys.w?1:0)-(keys.s?1:0))),side=moveX||((keys.d?1:0)-(keys.a?1:0));let v=new THREE.Vector3(side,0,forward);if(v.length()>1)v.normalize();v.applyAxisAngle(new THREE.Vector3(0,1,0),yaw);camera.position.x+=v.x*5*dt;camera.position.z+=v.z*5*dt;camera.position.x=THREE.MathUtils.clamp(camera.position.x,-20,20);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-20,20);if(fireHeld)shoot();spawnTimer+=dt;if(spawnTimer>8&&bots.length<8){spawnTimer=0;wave++;makeBot()}
+for(let b of bots){let p=b.group.position,dx=camera.position.x-p.x,dz=camera.position.z-p.z,d=Math.hypot(dx,dz);if(d>1.5){p.x+=dx/d*b.speed*dt;p.z+=dz/d*b.speed*dt;b.group.rotation.y=Math.atan2(dx,dz)}else{b.attack+=dt;if(b.attack>.65){hp-=mode==='mummy'?5:3;b.attack=0}}}
+if(hp<=0){hp=0;playing=false;document.getElementById('menu').style.display='flex';document.querySelector('#panel h1').textContent='จบเกม! คะแนน '+score;document.getElementById('start').textContent='เล่นอีกครั้ง'}document.getElementById('health').textContent='❤️ '+Math.ceil(hp);document.getElementById('score').textContent='คะแนน '+score;document.getElementById('bottom').textContent='WAVE '+wave;}
+renderer.render(scene,camera)}requestAnimationFrame(animate);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
