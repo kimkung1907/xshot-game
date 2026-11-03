@@ -33,24 +33,52 @@
 .side-info{border-top:1px solid #ffffff20;padding-top:16px}.side-info b{font-size:17px}.side-info p{margin:6px 0;color:#a9c1d3;font-size:12px;line-height:1.5}
 #toast{position:fixed;z-index:20;left:50%;bottom:24px;transform:translateX(-50%);background:#07111dee;border:1px solid #6bdcff66;border-radius:12px;padding:10px 16px;color:#dff8ff;display:none;font-size:13px}
 @media(max-width:760px){#lobby{align-items:flex-start}.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:250px}.hero-art{min-height:180px}.mode-grid{gap:8px}.profile{font-size:11px}}
+
+/* Hybrid lobby polish */
+#lobby{background:radial-gradient(ellipse at 75% 35%,#147da855,transparent 38%),linear-gradient(125deg,#050b16f7,#0b1c31f5 55%,#071322f7)}
+.lobby-wrap{width:min(1240px,100%);grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr)}
+.lobby-main,.lobby-side{backdrop-filter:blur(12px);border-color:#79dfff55;border-radius:18px}
+.lobby-main{background:linear-gradient(145deg,#0b1b2ef5,#0a1424f2)}
+.brand{font-style:italic;text-shadow:0 0 25px #19a8e899}
+.lobby-title{font-size:clamp(23px,3vw,30px)}
+.mode{cursor:pointer;transition:.18s;position:relative}
+.mode:hover{transform:translateY(-2px);border-color:#66dfff}
+.mode.active{background:linear-gradient(135deg,#16425a,#10263e);border-color:#55dcff;box-shadow:inset 0 0 0 1px #43d5ff55,0 0 25px #1aa9df28}
+.room{background:linear-gradient(90deg,#ffffff0d,#ffffff05);border-color:#ffffff25}
+.room button{background:#173f5b;border:1px solid #6edfff66}
+.primary{background:linear-gradient(100deg,#ff9b36,#e85c36 48%,#176fbd);box-shadow:0 8px 28px #e45c3444}
+.lobby-nav{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 6px}
+.lobby-nav button{padding:8px 12px;font-size:12px;border-radius:8px;background:#14283c;color:#a9c6d9;border:1px solid #ffffff1b}
+.lobby-nav button.active{background:#164b67;color:#fff;border-color:#6bdfff88}
+.lobby-footer{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid #ffffff1b;color:#91aabe;font-size:11px}
+.currency{color:#ffd27c;font-weight:bold}
+#lobbyModal{position:fixed;inset:0;z-index:30;background:#020813cc;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px)}
+.modal-card{width:min(520px,100%);background:linear-gradient(145deg,#122b43,#091523);border:1px solid #6bdfff66;border-radius:17px;padding:22px;box-shadow:0 20px 80px #000b}
+.modal-card h2{margin:0 0 8px;color:#7de4ff}.modal-card p{color:#b3c8d8;font-size:13px;line-height:1.6}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.modal-actions button{font-size:13px;padding:10px 14px}.secondary{background:#20384e;border:1px solid #ffffff2b}
+@media(max-width:760px){.lobby-wrap{grid-template-columns:1fr}.lobby-side{min-height:300px}.hero-art{min-height:190px}.lobby-nav{gap:5px}.lobby-nav button{flex:1;padding:9px 5px}}
 </style></head>
 <body>
 <div id="hud"><div id="stats">❤️ HP <span id="hp">100</span><div id="hpbar"><div id="hpfill"></div></div>⭐ Kills: <span id="kills">0</span></div><div id="top"> <b>XSHOT 3D ARENA</b><br><small>TEAM BATTLE • BOT TRAINING</small></div><div id="cross">+</div><div id="message"></div><div id="ammo">🔫 <span id="bullets">30</span> / ∞</div></div>
 <div id="mobile"><div id="stick"><div id="nub"></div></div><button id="fire">ยิง</button><button id="jump">กระโดด</button><div id="hint">ลากจอยเพื่อเดิน • ลากหน้าจอเพื่อเล็ง</div></div>
 <div id="lobby"><div class="lobby-wrap">
 <div class="lobby-main">
- <div class="lobby-head"><div class="brand">XSHOT<small>TACTICAL ARENA</small></div><div class="profile">👤 PLAYER 01　 <span style="color:#70e6a0">● ONLINE</span></div></div>
- <div class="lobby-title">ยินดีต้อนรับสู่สนามรบ</div><div class="muted">เลือกโหมดการเล่น แล้วเข้าร่วมห้องเพื่อเริ่มการแข่งขัน</div>
- <div class="room-head"><b>เลือกโหมด</b><span class="muted">GAME MODES</span></div>
- <div class="mode-grid"><div class="mode active"><div>⚔️</div><b>Team Deathmatch</b><span>ทีมแดงปะทะทีมน้ำเงิน</span></div><div class="mode"><div>🎯</div><b>ฝึกซ้อม</b><span>ฝึกยิงเป้ากับบอท</span></div></div>
+ <div class="lobby-head"><div class="brand">XSHOT<small>TACTICAL ARENA</small></div><div class="profile">👤 PLAYER 01　 <span style="color:#70e6a0">● ONLINE</span><br><span class="currency">◆ 12,500　🪙 850</span></div></div>
+ <div class="lobby-title">ยินดีต้อนรับสู่สนามรบ</div><div class="muted">เตรียมทีม เลือกโหมด แล้วเข้าสู่สนามรบ</div>
+ <div class="lobby-nav"><button class="active" data-tab="home">🏠 หน้าหลัก</button><button data-tab="character">🧍 ตัวละคร</button><button data-tab="armory">🔫 คลังอาวุธ</button><button data-tab="shop">🛒 ร้านค้า</button></div>
+ <div id="homePanel">\n <div class="room-head"><b>เลือกโหมด</b><span class="muted">GAME MODES</span></div>
+ <div class="mode-grid"><div class="mode active" data-mode="tdm"><div>⚔️</div><b>Team Deathmatch</b><span>ทีมแดงปะทะทีมน้ำเงิน</span></div><div class="mode" data-mode="training"><div>🎯</div><b>ฝึกซ้อม</b><span>ฝึกยิงเป้ากับบอท</span></div></div>
  <div class="room-head"><b>ห้องแนะนำ</b><span class="muted">ROOM LIST</span></div>
  <div class="room"><div><b>ห้องฝึกซ้อม 01</b><br><span class="muted">แผนที่: Training Yard</span></div><div><em>● ว่าง</em><br><span class="muted">1/8 ผู้เล่น</span></div></div>
  <div class="room"><div><b>Team Battle 02</b><br><span class="muted">แผนที่: Arena Base</span></div><div><em>● เปิดรับ</em><br><span class="muted">3/8 ผู้เล่น</span></div></div>
+ </div>\n <div id="subPanel" style="display:none"><div class="room-head"><b id="subTitle">ตัวละครของฉัน</b><span class="muted" id="subTag">LOADOUT</span></div><div class="mode" style="cursor:default;margin:12px 0"><b id="subName">ASSAULT SOLDIER</b><p class="muted" id="subDesc">ชุดจู่โจมมาตรฐาน พร้อมเข้าสู่สนามรบ</p></div><div class="room"><span>สถานะอุปกรณ์</span><em>● พร้อมใช้งาน</em></div><button class="primary" id="backHome">กลับหน้าหลัก</button></div>
  <button class="primary" id="play">▶　เข้าห้องและเริ่มเล่น</button>
+ <div class="lobby-footer"><span>BUILD 0.2.0 • BETA</span><span>🌐 ASIA SERVER　 <b style="color:#75e5a1">ONLINE</b></span><span>ยังไม่รองรับผู้เล่นออนไลน์จริง</span></div>
  <div class="muted" style="text-align:center;margin-top:10px">เวอร์ชันทดลอง • เล่นคนเดียวกับบอท • ยังไม่รองรับผู้เล่นออนไลน์จริง</div>
 </div>
 <div class="lobby-side"><div><div class="room-head"><b>ตัวละครของฉัน</b><span class="muted">CHARACTER</span></div><div class="hero-art"><div class="hero-silhouette"><div class="hero-head"></div><div class="hero-body"></div><div class="hero-leg left"></div><div class="hero-leg right"></div><div class="hero-gun"></div></div></div></div><div class="side-info"><b>ASSAULT SOLDIER</b><p>หน่วยจู่โจม • อุปกรณ์มาตรฐาน<br>อาวุธหลัก: Assault Rifle　 |　 HP: 100</p><div class="muted">WASD / จอยมือถือ เพื่อเคลื่อนที่<br>เมาส์ / ลากหน้าจอ เพื่อเล็ง • ยิงเพื่อกำจัดบอท</div></div></div>
-</div></div><div id="toast"></div>
+</div></div><div id="lobbyModal"><div class="modal-card"><h2 id="modalTitle">ยืนยันการเข้าห้อง</h2><p id="modalText">กำลังเตรียมสนามรบ</p><div class="modal-actions"><button class="secondary" id="modalClose">ยกเลิก</button><button id="modalConfirm">ตกลง</button></div></div></div><div id="toast"></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c9e8);scene.fog=new THREE.Fog(0x91c9e8,35,95);
@@ -84,5 +112,15 @@ const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);
 for(const b of bots){const dx=camera.position.x-b.g.position.x,dz=camera.position.z-b.g.position.z,d=Math.hypot(dx,dz);b.phase+=dt;if(d>2.2){b.g.position.x+=dx/d*dt*1.25;b.g.position.z+=dz/d*dt*1.25;b.g.rotation.y=Math.atan2(dx,dz)}else{b.attack+=dt;if(b.attack>1.1){damage(7);b.attack=0}}b.g.position.x=Math.max(-22,Math.min(22,b.g.position.x));b.g.position.z=Math.max(-21,Math.min(21,b.g.position.z));}}
 renderer.render(scene,camera)}
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-document.querySelector('#play').addEventListener('click',()=>{document.querySelector('#lobby').style.display='none';if(isMobile)mobile.style.display='block';else renderer.domElement.requestPointerLock?.();});updateHUD();animate();
+let chosenMode='tdm',pendingStart=false;
+const modal=document.querySelector('#lobbyModal');
+function showLobbyModal(title,body){document.querySelector('#modalTitle').textContent=title;document.querySelector('#modalText').textContent=body;pendingStart=true;modal.style.display='flex'}
+document.querySelectorAll('.mode[data-mode]').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('.mode[data-mode]').forEach(x=>x.classList.remove('active'));el.classList.add('active');chosenMode=el.dataset.mode}));
+document.querySelectorAll('.lobby-nav button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.lobby-nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const tab=btn.dataset.tab;const home=document.querySelector('#homePanel'),sub=document.querySelector('#subPanel');if(tab==='home'){home.style.display='block';sub.style.display='none';return}home.style.display='none';sub.style.display='block';const info={character:['ตัวละครของฉัน','CHARACTER','ASSAULT SOLDIER','ชุดจู่โจมมาตรฐาน • HP 100'],armory:['คลังอาวุธ','WEAPON LOADOUT','ASSAULT RIFLE','ปืนไรเฟิลจู่โจม • กระสุน 30 นัด • ความเสียหาย 34'],shop:['ร้านค้า','ITEM STORE','ร้านค้าอยู่ระหว่างพัฒนา','ระบบซื้อชุดและอาวุธจะเพิ่มในอัปเดตถัดไป']}[tab];document.querySelector('#subTitle').textContent=info[0];document.querySelector('#subTag').textContent=info[1];document.querySelector('#subName').textContent=info[2];document.querySelector('#subDesc').textContent=info[3]}));
+document.querySelector('#backHome').addEventListener('click',()=>document.querySelector('[data-tab="home"]').click());
+document.querySelectorAll('.room button').forEach(btn=>btn.addEventListener('click',()=>showLobbyModal('เข้าร่วมห้องแข่งขัน','คุณเลือก '+btn.parentElement.querySelector('b').textContent+' แล้ว ต้องการเริ่มเล่นหรือไม่?')));
+document.querySelector('#play').addEventListener('click',()=>showLobbyModal('ยืนยันการเริ่มเกม',chosenMode==='tdm'?'เข้าสู่ Team Deathmatch กับบอท?':'เข้าสู่สนามฝึกซ้อมกับบอท?'));
+document.querySelector('#modalClose').addEventListener('click',()=>{modal.style.display='none';pendingStart=false});
+document.querySelector('#modalConfirm').addEventListener('click',()=>{modal.style.display='none';if(pendingStart){document.querySelector('#lobby').style.display='none';if(isMobile)mobile.style.display='block';else renderer.domElement.requestPointerLock?.();pendingStart=false}});
+updateHUD();animate();
 </script></body></html>
